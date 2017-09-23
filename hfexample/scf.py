@@ -70,12 +70,11 @@ def make_fock(h_core, density, num_basis_func, two_electron_dict):
     fock = np.zeros((num_basis_func, num_basis_func))
     for i in range(0, num_basis_func):
         for j in range(0, num_basis_func):
-            fock[i, j] = h_core[i, j]
             for k in range(0, num_basis_func):
                 for l in range(0, num_basis_func):
                     a = get_two_elec_integrals(i + 1, j + 1, k + 1, l + 1, two_electron_dict)
                     b = get_two_elec_integrals(i + 1, k + 1, j + 1, l + 1, two_electron_dict)
-                    fock[i, j] = fock[i, j] + density[k, l] * (a - 0.5 * b)
+                    fock[i, j] = h_core[i, j] + density[k, l] * (a - 0.5 * b)
     return fock
 
 
@@ -112,7 +111,7 @@ def run_scf():
     num_electrons = 2  # The number of electrons in our system
 
     nuclear_repulsion, s_data, t_data, v_data, eri_data = get_raw_data()
-    # dim is the number of basis functions
+    # num_basis_func is the number of basis functions
     num_basis_func = int((np.sqrt(8 * len(s_data) + 1) - 1) / 2)
 
     # Initialize integrals, and put them in convenient Numpy array format
