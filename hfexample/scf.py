@@ -31,7 +31,6 @@ def get_compound_index(a, b, c, d):
         abcd = cd * (cd + 1) / 2 + ab
     return abcd
 
-
 # Put Fock matrix in Orthonormal AO basis
 def f_prime(x, f):
     return np.dot(np.transpose(x), np.dot(f, x))
@@ -67,7 +66,7 @@ def make_fock(h_core, density, num_basis_func, eri_data):
                 for l in range(num_basis_func):
                     a = eri_data[i, j, k, l]
                     b = eri_data[i, k, j, l]
-                    fock[i, j] = h_core[i, j] + density[k, l] * (a - 0.5 * b)
+                    fock[i, j] = h_core[i, j] + density[i, j] * (a - 0.5 * b)
     return fock
 
 
@@ -165,6 +164,7 @@ def run_scf():
         electronic_energy = get_current_energy(density_matrix, h_core, fock_matrix, num_basis_func)
         print(electronic_energy + nuclear_repulsion, i)
 
+    electronic_energy = get_current_energy(density_matrix, h_core, fock_matrix, num_basis_func)
     return electronic_energy + nuclear_repulsion
 
 
