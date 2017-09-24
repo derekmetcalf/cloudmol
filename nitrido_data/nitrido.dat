@@ -1,0 +1,42 @@
+import numpy as np
+
+molecule nitrido {
+0 1
+ N         -1.4026136199        0.5719783806       -0.9805821183
+ Cr        -0.0002626726       -0.0481570108       -0.0164527662
+ F         -0.1950863011        0.2591886180        1.7170223187
+ N          0.0502052043       -1.5370135254       -0.3376043483
+ N          1.5802389277        0.5669084637       -0.6302732322
+ H         -1.4810024696        1.5459544921       -1.2986376614
+ H         -2.1057839749       -0.0236246723       -1.4294492765
+ H          1.8288800483        1.5621173002       -0.5455108348
+ H          2.2825730031        0.0469328212       -1.1648742367
+units angstrom
+}
+
+set {
+	basis 6-31G
+	reference rhf
+	}
+
+wfn = Wavefunction.build(nitrido,get_global_option('basis'))
+
+mints=MintsHelper(wfn.basisset())
+E = energy('scf')
+S = mints.ao_overlap()
+T = mints.ao_kinetic()
+V = mints.ao_potential()
+I = mints.ao_eri()
+Enuc = nitrido.nuclear_repulsion_energy()
+
+S_array = S.to_array()
+T_array = T.to_array()
+V_array = V.to_array()
+I_array = I.to_array()
+
+np.save('s',S_array)
+np.save('t',T_array)
+np.save('v',V_array)
+np.save('eri',I_array)
+np.save('enuc',Enuc)
+print(E)
