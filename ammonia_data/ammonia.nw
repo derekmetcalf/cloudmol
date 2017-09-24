@@ -1,0 +1,22 @@
+echo
+start ammonia
+
+permanent_dir ./perm
+scratch_dir ./scratch
+
+charge 0
+geometry units angstroms noautosym
+N            .000000     .000000     .116489
+H           .000000     .939731    -.271808
+H            .813831    -.469865    -.271808
+H           -.813831    -.469865    -.271808
+end
+
+basis
+ * library sto-3g
+end
+
+scf
+print overlap kinetic potential ao2eints debug
+end
+task scf

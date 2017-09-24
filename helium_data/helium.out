@@ -18,9 +18,9 @@
     -----------------------------------------------------------------------
 
 
-    Psi4 started on: Sunday, 24 September 2017 11:38AM
+    Psi4 started on: Sunday, 24 September 2017 03:45PM
 
-    Process ID:   3977
+    Process ID:   2885
     PSIDATADIR: /home/derek/psi4conda/share/psi4
     Memory:     500.0 MiB
     Threads:    1
@@ -38,7 +38,7 @@ units angstrom
 }
 
 set {
-	basis STO-3G
+	basis 6-31G
 	reference rhf
 	}
 
@@ -64,26 +64,27 @@ np.save('eri',I_array)
 np.save('enuc',Enuc)
 print(E)
 print(mints.nbf())
+
 --------------------------------------------------------------------------
    => Loading Basis Set <=
 
-    Name: STO-3G
+    Name: 6-31G
     Role: ORBITAL
     Keyword: BASIS
-    atoms 1 entry HE         line    24 file /home/derek/psi4conda/share/psi4/basis/sto-3g.gbs 
-    atoms 2 entry H          line    18 file /home/derek/psi4conda/share/psi4/basis/sto-3g.gbs 
+    atoms 1 entry HE         line    29 file /home/derek/psi4conda/share/psi4/basis/6-31g.gbs 
+    atoms 2 entry H          line    21 file /home/derek/psi4conda/share/psi4/basis/6-31g.gbs 
 
 
 *** tstart() called on derek
-*** at Sun Sep 24 11:38:54 2017
+*** at Sun Sep 24 15:45:39 2017
 
    => Loading Basis Set <=
 
-    Name: STO-3G
+    Name: 6-31G
     Role: ORBITAL
     Keyword: BASIS
-    atoms 1 entry HE         line    24 file /home/derek/psi4conda/share/psi4/basis/sto-3g.gbs 
-    atoms 2 entry H          line    18 file /home/derek/psi4conda/share/psi4/basis/sto-3g.gbs 
+    atoms 1 entry HE         line    29 file /home/derek/psi4conda/share/psi4/basis/6-31g.gbs 
+    atoms 2 entry H          line    21 file /home/derek/psi4conda/share/psi4/basis/6-31g.gbs 
 
 
          ---------------------------------------------------------
@@ -130,33 +131,33 @@ print(mints.nbf())
 
   ==> Primary Basis <==
 
-  Basis Set: STO-3G
-    Blend: STO-3G
-    Number of shells: 2
-    Number of basis function: 2
-    Number of Cartesian functions: 2
-    Spherical Harmonics?: true
+  Basis Set: 6-31G
+    Blend: 6-31G
+    Number of shells: 4
+    Number of basis function: 4
+    Number of Cartesian functions: 4
+    Spherical Harmonics?: false
     Max angular momentum: 0
 
    => Loading Basis Set <=
 
-    Name: (STO-3G AUX)
+    Name: (6-31G AUX)
     Role: JKFIT
     Keyword: DF_BASIS_SCF
-    atoms 1 entry HE         line    38 file /home/derek/psi4conda/share/psi4/basis/def2-svp-jkfit.gbs 
-    atoms 2 entry H          line    22 file /home/derek/psi4conda/share/psi4/basis/def2-svp-jkfit.gbs 
+    atoms 1 entry HE         line    38 file /home/derek/psi4conda/share/psi4/basis/def2-qzvpp-jkfit.gbs 
+    atoms 2 entry H          line    50 file /home/derek/psi4conda/share/psi4/basis/cc-pvdz-jkfit.gbs 
 
   ==> Pre-Iterations <==
 
    -------------------------------------------------------
     Irrep   Nso     Nmo     Nalpha   Nbeta   Ndocc  Nsocc
    -------------------------------------------------------
-     A1         2       2       0       0       0       0
+     A1         4       4       0       0       0       0
      A2         0       0       0       0       0       0
      B1         0       0       0       0       0       0
      B2         0       0       0       0       0       0
    -------------------------------------------------------
-    Total       2       2       1       1       1       0
+    Total       4       4       1       1       1       0
    -------------------------------------------------------
 
   ==> Integral Setup <==
@@ -176,15 +177,15 @@ print(mints.nbf())
 
    => Auxiliary Basis Set <=
 
-  Basis Set: (STO-3G AUX)
-    Blend: DEF2-SVP-JKFIT
-    Number of shells: 15
-    Number of basis function: 41
-    Number of Cartesian functions: 45
-    Spherical Harmonics?: true
+  Basis Set: (6-31G AUX)
+    Blend: CC-PVDZ-JKFIT + DEF2-QZVPP-JKFIT
+    Number of shells: 18
+    Number of basis function: 50
+    Number of Cartesian functions: 50
+    Spherical Harmonics?: false
     Max angular momentum: 2
 
-  Minimum eigenvalue in the overlap matrix is 5.6568857194E-01.
+  Minimum eigenvalue in the overlap matrix is 1.9128245529E-01.
   Using Symmetric Orthogonalization.
 
   SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF.
@@ -193,11 +194,12 @@ print(mints.nbf())
 
                            Total Energy        Delta E     RMS |[F,P]|
 
-   @DF-RHF iter   0:    -2.26943616924642   -2.26944e+00   5.27749e-02 
-   @DF-RHF iter   1:    -2.85124994279583   -5.81814e-01   2.81459e-02 
-   @DF-RHF iter   2:    -2.85431034604962   -3.06040e-03   5.28561e-03 DIIS
-   @DF-RHF iter   3:    -2.85441869062978   -1.08345e-04   6.51489e-05 DIIS
-   @DF-RHF iter   4:    -2.85441870698281   -1.63530e-08   4.62370e-07 DIIS
+   @DF-RHF iter   0:    -2.33233894079877   -2.33234e+00   6.80609e-02 
+   @DF-RHF iter   1:    -2.89595484297935   -5.63616e-01   2.22795e-02 
+   @DF-RHF iter   2:    -2.90078306804692   -4.82823e-03   2.86149e-03 DIIS
+   @DF-RHF iter   3:    -2.90088063309880   -9.75651e-05   3.66772e-04 DIIS
+   @DF-RHF iter   4:    -2.90088212563728   -1.49254e-06   1.15331e-05 DIIS
+   @DF-RHF iter   5:    -2.90088212770058   -2.06331e-09   7.34374e-07 DIIS
 
   ==> Post-Iterations <==
 
@@ -206,11 +208,11 @@ print(mints.nbf())
 
     Doubly Occupied:                                                      
 
-       1A1    -1.523829  
+       1A1    -1.524887  
 
     Virtual:                                                              
 
-       2A1    -0.267603  
+       2A1    -0.333951     3A1     0.464162     4A1     1.064172  
 
     Final Occupation by Irrep:
              A1    A2    B1    B2 
@@ -218,18 +220,18 @@ print(mints.nbf())
 
   Energy converged.
 
-  @DF-RHF Final Energy:    -2.85441870698281
+  @DF-RHF Final Energy:    -2.90088212770058
 
    => Energetics <=
 
     Nuclear Repulsion Energy =              1.1386276677568585
-    One-Electron Energy =                  -4.9384361425837024
-    Two-Electron Energy =                   0.9453897678440326
+    One-Electron Energy =                  -5.0292444470905933
+    Two-Electron Energy =                   0.9897346516331509
     DFT Exchange-Correlation Energy =       0.0000000000000000
     Empirical Dispersion Energy =           0.0000000000000000
     PCM Polarization Energy =               0.0000000000000000
     EFP Energy =                            0.0000000000000000
-    Total Energy =                         -2.8544187069828117
+    Total Energy =                         -2.9008821277005841
 
 
 
@@ -241,22 +243,22 @@ Properties computed using the SCF density matrix
      X:     0.0000      Y:     0.0000      Z:     0.6966
 
   Electronic Dipole Moment: (a.u.)
-     X:     0.0000      Y:     0.0000      Z:     0.3597
+     X:     0.0000      Y:     0.0000      Z:     0.3493
 
   Dipole Moment: (a.u.)
-     X:     0.0000      Y:     0.0000      Z:     1.0562     Total:     1.0562
+     X:     0.0000      Y:     0.0000      Z:     1.0459     Total:     1.0459
 
   Dipole Moment: (Debye)
-     X:     0.0000      Y:     0.0000      Z:     2.6847     Total:     2.6847
+     X:     0.0000      Y:     0.0000      Z:     2.6583     Total:     2.6583
 
 
-*** tstop() called on derek at Sun Sep 24 11:38:54 2017
+*** tstop() called on derek at Sun Sep 24 15:45:39 2017
 Module time:
-	user time   =       0.14 seconds =       0.00 minutes
+	user time   =       0.13 seconds =       0.00 minutes
 	system time =       0.00 seconds =       0.00 minutes
 	total time  =          0 seconds =       0.00 minutes
 Total time:
-	user time   =       0.14 seconds =       0.00 minutes
+	user time   =       0.13 seconds =       0.00 minutes
 	system time =       0.00 seconds =       0.00 minutes
 	total time  =          0 seconds =       0.00 minutes
 

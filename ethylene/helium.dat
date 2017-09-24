@@ -1,12 +1,10 @@
 import numpy as np
 
-molecule ammonia {
-    0 1
-N            .000000     .000000     .116489
-H           .000000     .939731    -.271808
-H            .813831    -.469865    -.271808
-H           -.813831    -.469865    -.271808
-units ang
+molecule helium {
+1 1
+ He 0 0 0
+ H 0.9295 0 0 
+units angstrom
 }
 
 set {
@@ -14,7 +12,7 @@ set {
 	reference rhf
 	}
 
-wfn = Wavefunction.build(ammonia,get_global_option('basis'))
+wfn = Wavefunction.build(helium,get_global_option('basis'))
 
 mints=MintsHelper(wfn.basisset())
 E = energy('scf')
@@ -22,7 +20,7 @@ S = mints.ao_overlap()
 T = mints.ao_kinetic()
 V = mints.ao_potential()
 I = mints.ao_eri()
-Enuc = ammonia.nuclear_repulsion_energy()
+Enuc = helium.nuclear_repulsion_energy()
 
 S_array = S.to_array()
 T_array = T.to_array()

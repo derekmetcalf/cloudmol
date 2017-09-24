@@ -168,6 +168,7 @@ P = np.zeros((dim,dim)) # P is density matrix, set intially to zero.
 DELTA = 1.0
 convergence = 0.00000001
 G = np.zeros((dim,dim)) # The G matrix is used to make the Fock matrix
+#i=0
 while DELTA > convergence:
   F = makefock(Hcore,P,dim)
 #  print "F = \n", F
@@ -188,7 +189,9 @@ while DELTA > convergence:
 # test for convergence. if meets criteria, exit loop and calculate properties of interest
 
   DELTA = deltap(P,OLDP)
-  #print "E= ",currentenergy(P,Hcore,F,dim)+ENUC
+  #print("E= ",currentenergy(P,Hcore,F,dim)+ENUC)
+  #i +=1
+  #print(i)
   #print "Delta = ", DELTA,"\n"
 
 EN = currentenergy(P,Hcore,F,dim)

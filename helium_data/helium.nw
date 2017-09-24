@@ -1,0 +1,20 @@
+echo
+start helium
+
+permanent_dir ./perm
+scratch_dir ./scratch
+
+charge 1
+geometry units angstroms noautosym
+ He 0 0 0
+ H 0.9295 0 0 
+end
+
+basis
+ * library sto-3g
+end
+
+scf
+print overlap kinetic potential ao2eints debug
+end
+task scf

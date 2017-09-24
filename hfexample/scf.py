@@ -30,6 +30,7 @@ def make_density(coefficients, density, num_basis_func, num_electrons):
         for nu in range(num_basis_func):
             old_density[mu, nu] = density[mu, nu]
             density[mu, nu] = 0.0e0
+            # num_electrons // 2
             for m in range(num_electrons // 2):
                 density[mu, nu] = density[mu, nu] + (2 * coefficients[mu, m] * coefficients[nu, m])
     return density, old_density
@@ -53,13 +54,13 @@ def make_fock(h_core, density, num_basis_func, eri_data):
 
 
 # Calculate change in density matrix
-def calculate_density_change(density, old_density, num_basis_func):
-    delta = 0.0
-    for i in range(num_basis_func):
-        for j in range(num_basis_func):
-            delta = delta + ((density[i, j] - old_density[i, j]) ** 2)
-    delta = (delta / 4) ** 0.5
-    return delta
+# def calculate_density_change(density, old_density, num_basis_func):
+#     delta = 0.0
+#     for i in range(num_basis_func):
+#         for j in range(num_basis_func):
+#             delta = delta + ((density[i, j] - old_density[i, j]) ** 2)
+#     delta = (delta / 4) ** 0.5
+#     return delta
 
 
 # Calculate energy at iteration
@@ -86,9 +87,8 @@ def run_scf():
 
     nuclear_repulsion, overlap_integrals, kinetic_energy, potential_energy, eri_data = get_raw_data()
     # num_basis_func is the number of basis functions
-    # num_basis_func = int((np.sqrt(8 * len(s_data) + 1) - 1) / 2)
     num_basis_func = len(overlap_integrals)
-
+    #num_basis_func = int((np.sqrt(8 * len(overlap_integrals + 1) - 1) / 2))
     h_core = kinetic_energy + potential_energy
     h_core = h_core[::-1, ::-1]
 
