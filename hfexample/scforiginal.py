@@ -68,7 +68,11 @@ def makefock(Hcore,P,dim):
       F[i,j] = Hcore[i,j]
       for k in range(0,dim):
         for l in range(0,dim):
-          F[i,j] = F[i,j] + P[k,l]*(tei(i+1,j+1,k+1,l+1)-0.5e0*tei(i+1,k+1,j+1,l+1))
+          a = tei(i + 1, j + 1, k + 1, l + 1)
+          b = tei(i + 1, k + 1, j + 1, l + 1)
+          f = F[i, j]
+          p = P[k, l]
+          F[i, j] = f + p * (a - 0.5e0 * b)
   return F 
 
 # Calculate change in density matrix
@@ -176,6 +180,8 @@ while DELTA > convergence:
 #  print "C = \n", C
 
   P,OLDP = makedensity(C,P,dim,Nelec)
+  EN = currentenergy(P, Hcore, F, dim)
+  print(EN + ENUC)
 
 #  print "P = \n", P
 

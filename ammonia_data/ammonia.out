@@ -1,0 +1,268 @@
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.1 release
+
+                         Git: Rev {HEAD} add49b9 
+
+
+    R. M. Parrish, L. A. Burns, D. G. A. Smith, A. C. Simmonett,
+    A. E. DePrince III, E. G. Hohenstein, U. Bozkaya, A. Yu. Sokolov,
+    R. Di Remigio, R. M. Richard, J. F. Gonthier, A. M. James,
+    H. R. McAlexander, A. Kumar, M. Saitow, X. Wang, B. P. Pritchard,
+    P. Verma, H. F. Schaefer III, K. Patkowski, R. A. King, E. F. Valeev,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, and C. D. Sherrill,
+    J. Chem. Theory Comput. in press (2017).
+    (doi: 10.1021/acs.jctc.7b00174)
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Sunday, 24 September 2017 01:39PM
+
+    Process ID:   8104
+    PSIDATADIR: /home/derek/psi4conda/share/psi4
+    Memory:     500.0 MiB
+    Threads:    1
+    
+  ==> Input File <==
+
+--------------------------------------------------------------------------
+import numpy as np
+
+molecule ammonia {
+    0 1
+N            .000000     .000000     .116489
+H           .000000     .939731    -.271808
+H            .813831    -.469865    -.271808
+H           -.813831    -.469865    -.271808
+units angstrom
+}
+
+set {
+	basis STO-3G
+	reference rhf
+	}
+
+wfn = Wavefunction.build(ammonia,get_global_option('basis'))
+
+mints=MintsHelper(wfn.basisset())
+E = energy('scf')
+S = mints.ao_overlap()
+T = mints.ao_kinetic()
+V = mints.ao_potential()
+I = mints.ao_eri()
+Enuc = ammonia.nuclear_repulsion_energy()
+
+S_array = S.to_array()
+T_array = T.to_array()
+V_array = V.to_array()
+I_array = I.to_array()
+
+np.save('s',S_array)
+np.save('t',T_array)
+np.save('v',V_array)
+np.save('eri',I_array)
+np.save('enuc',Enuc)
+print(E)
+print(mints.nbf())
+--------------------------------------------------------------------------
+   => Loading Basis Set <=
+
+    Name: STO-3G
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1   entry N          line    70 file /home/derek/psi4conda/share/psi4/basis/sto-3g.gbs 
+    atoms 2-4 entry H          line    18 file /home/derek/psi4conda/share/psi4/basis/sto-3g.gbs 
+
+
+*** tstart() called on derek
+*** at Sun Sep 24 13:39:11 2017
+
+   => Loading Basis Set <=
+
+    Name: STO-3G
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1   entry N          line    70 file /home/derek/psi4conda/share/psi4/basis/sto-3g.gbs 
+    atoms 2-4 entry H          line    18 file /home/derek/psi4conda/share/psi4/basis/sto-3g.gbs 
+
+
+         ---------------------------------------------------------
+                                   SCF
+            by Justin Turney, Rob Parrish, and Andy Simmonett
+                              RHF Reference
+                        1 Threads,    500 MiB Core
+         ---------------------------------------------------------
+
+  ==> Geometry <==
+
+    Molecular point group: cs
+    Full point group: Cs
+
+    Geometry (in Angstrom), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+           N          0.000000059191    -0.068951512281     0.000000000000    14.003074004780
+           H         -0.939730940809     0.319345487719     0.000000000000     1.007825032070
+           H          0.469865059191     0.319345487719     0.813831000000     1.007825032070
+           H          0.469865059191     0.319345487719    -0.813831000000     1.007825032070
+
+  Running in cs symmetry.
+
+  Rotational constants: A =      9.85873  B =      9.85872  C =      6.31369 [cm^-1]
+  Rotational constants: A = 295557.18082  B = 295556.97103  C = 189279.59743 [MHz]
+  Nuclear repulsion =   11.904528921646454
+
+  Charge       = 0
+  Multiplicity = 1
+  Electrons    = 10
+  Nalpha       = 5
+  Nbeta        = 5
+
+  ==> Algorithm <==
+
+  SCF Algorithm Type is DF.
+  DIIS enabled.
+  MOM disabled.
+  Fractional occupation disabled.
+  Guess Type is SAD.
+  Energy threshold   = 1.00e-06
+  Density threshold  = 1.00e-06
+  Integral threshold = 0.00e+00
+
+  ==> Primary Basis <==
+
+  Basis Set: STO-3G
+    Blend: STO-3G
+    Number of shells: 6
+    Number of basis function: 8
+    Number of Cartesian functions: 8
+    Spherical Harmonics?: true
+    Max angular momentum: 1
+
+   => Loading Basis Set <=
+
+    Name: (STO-3G AUX)
+    Role: JKFIT
+    Keyword: DF_BASIS_SCF
+    atoms 1   entry N          line   262 file /home/derek/psi4conda/share/psi4/basis/def2-svp-jkfit.gbs 
+    atoms 2-4 entry H          line    22 file /home/derek/psi4conda/share/psi4/basis/def2-svp-jkfit.gbs 
+
+  ==> Pre-Iterations <==
+
+   -------------------------------------------------------
+    Irrep   Nso     Nmo     Nalpha   Nbeta   Ndocc  Nsocc
+   -------------------------------------------------------
+     A'         6       6       0       0       0       0
+     A"         2       2       0       0       0       0
+   -------------------------------------------------------
+    Total       8       8       5       5       5       0
+   -------------------------------------------------------
+
+  ==> Integral Setup <==
+
+  ==> DFJK: Density-Fitted J/K Matrices <==
+
+    J tasked:                  Yes
+    K tasked:                  Yes
+    wK tasked:                  No
+    OpenMP threads:              1
+    Integrals threads:           1
+    Memory (MB):               375
+    Algorithm:                Core
+    Integral Cache:           NONE
+    Schwarz Cutoff:          1E-12
+    Fitting Condition:       1E-12
+
+   => Auxiliary Basis Set <=
+
+  Basis Set: (STO-3G AUX)
+    Blend: DEF2-SVP-JKFIT
+    Number of shells: 43
+    Number of basis function: 131
+    Number of Cartesian functions: 153
+    Spherical Harmonics?: true
+    Max angular momentum: 4
+
+  Minimum eigenvalue in the overlap matrix is 2.7017708569E-01.
+  Using Symmetric Orthogonalization.
+
+  SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF.
+
+  ==> Iterations <==
+
+                           Total Energy        Delta E     RMS |[F,P]|
+
+   @DF-RHF iter   0:   -55.11495454020814   -5.51150e+01   2.43961e-01 
+   @DF-RHF iter   1:   -55.44029460404976   -3.25340e-01   2.29431e-02 
+   @DF-RHF iter   2:   -55.45404585938929   -1.37513e-02   4.10687e-03 DIIS
+   @DF-RHF iter   3:   -55.45461769458388   -5.71835e-04   1.15095e-03 DIIS
+   @DF-RHF iter   4:   -55.45470301497237   -8.53204e-05   1.40374e-04 DIIS
+   @DF-RHF iter   5:   -55.45470407996906   -1.06500e-06   7.84133e-06 DIIS
+   @DF-RHF iter   6:   -55.45470408254769   -2.57863e-09   9.22478e-08 DIIS
+
+  ==> Post-Iterations <==
+
+    Orbital Energies (a.u.)
+    -----------------------
+
+    Doubly Occupied:                                                      
+
+       1Ap   -15.306093     2Ap    -1.088977     1App   -0.570367  
+       3Ap    -0.570367     4Ap    -0.353097  
+
+    Virtual:                                                              
+
+       5Ap     0.636061     6Ap     0.724788     2App    0.724788  
+
+    Final Occupation by Irrep:
+             Ap   App 
+    DOCC [     4,    1 ]
+
+  Energy converged.
+
+  @DF-RHF Final Energy:   -55.45470408254769
+
+   => Energetics <=
+
+    Nuclear Repulsion Energy =             11.9045289216464543
+    One-Electron Energy =                 -98.9406634806475864
+    Two-Electron Energy =                  31.5814304764534342
+    DFT Exchange-Correlation Energy =       0.0000000000000000
+    Empirical Dispersion Energy =           0.0000000000000000
+    PCM Polarization Energy =               0.0000000000000000
+    EFP Energy =                            0.0000000000000000
+    Total Energy =                        -55.4547040825476927
+
+
+
+Properties will be evaluated at   0.000000,   0.000000,   0.000000 Bohr
+
+Properties computed using the SCF density matrix
+
+  Nuclear Dipole Moment: (a.u.)
+     X:    -0.0000      Y:     0.8983      Z:     0.0000
+
+  Electronic Dipole Moment: (a.u.)
+     X:     0.0000      Y:    -0.1901      Z:     0.0000
+
+  Dipole Moment: (a.u.)
+     X:    -0.0000      Y:     0.7082      Z:     0.0000     Total:     0.7082
+
+  Dipole Moment: (Debye)
+     X:    -0.0000      Y:     1.8001      Z:     0.0000     Total:     1.8001
+
+
+*** tstop() called on derek at Sun Sep 24 13:39:11 2017
+Module time:
+	user time   =       0.17 seconds =       0.00 minutes
+	system time =       0.01 seconds =       0.00 minutes
+	total time  =          0 seconds =       0.00 minutes
+Total time:
+	user time   =       0.17 seconds =       0.00 minutes
+	system time =       0.01 seconds =       0.00 minutes
+	total time  =          0 seconds =       0.00 minutes
+
+*** Psi4 exiting successfully. Buy a developer a beer!
