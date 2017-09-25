@@ -9,42 +9,30 @@
 import numpy as np
 
 
-# Put Fock matrix in Orthonormal AO basis
-def f_prime(x, f):
-    return np.dot(np.transpose(x), np.dot(f, x))
-
-
-# Diagonalize a matrix. Return Eigenvalues
-# and non orthogonal Eigenvectors in separate 2D arrays.
-def diagonalize(a, s_inv_sqrt):
-    e, c_prime = np.linalg.eigh(a)
-    c = np.dot(s_inv_sqrt, c_prime)
-    return e, c
-
-
 # Make Density Matrix
 # and store old one to test for convergence
-def make_density(coefficients, density, num_basis_func, num_electrons):
-    old_density = np.zeros((num_basis_func, num_basis_func))
-    for mu in range(num_basis_func):
-        for nu in range(num_basis_func):
+def make_density(coefficients, density, num_electrons):
+    n = len(density)
+    old_density = np.zeros((n, n))
+    for mu in range(n):
+        for nu in range(n):
             old_density[mu, nu] = density[mu, nu]
             density[mu, nu] = 0.0e0
-            # num_electrons // 2
             for m in range(num_electrons // 2):
                 density[mu, nu] = density[mu, nu] + (2 * coefficients[mu, m] * coefficients[nu, m])
     return density, old_density
 
 
 # Make Fock Matrix
-def make_fock(h_core, density, num_basis_func, eri_data):
-    fock = np.zeros((num_basis_func, num_basis_func))
-    for i in range(num_basis_func):
-        for j in range(num_basis_func):
+def make_fock(h_core, density, eri_data):
+    n = len(h_core)
+    fock = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
             fock[i, j] = h_core[i, j]
-            for k in range(num_basis_func):
-                for l in range(num_basis_func):
-                    i_prime, j_prime, k_prime, l_prime = (num_basis_func - 1 - a for a in [i, j, k, l])
+            for k in range(n):
+                for l in range(n):
+                    i_prime, j_prime, k_prime, l_prime = (n - 1 - a for a in [i, j, k, l])
                     a = eri_data[i_prime, j_prime, k_prime, l_prime]
                     b = eri_data[i_prime, k_prime, j_prime, l_prime]
                     f = fock[i, j]
@@ -54,41 +42,32 @@ def make_fock(h_core, density, num_basis_func, eri_data):
 
 
 # Calculate change in density matrix
-# def calculate_density_change(density, old_density, num_basis_func):
-#     delta = 0.0
-#     for i in range(num_basis_func):
-#         for j in range(num_basis_func):
-#             delta = delta + ((density[i, j] - old_density[i, j]) ** 2)
-#     delta = (delta / 4) ** 0.5
-#     return delta
-
-
-# Calculate energy at iteration
-def get_current_energy(density, h_core, fock, num_basis_func):
-    energy = 0.0
-    for i in range(num_basis_func):
-        for j in range(num_basis_func):
-            energy = energy + 0.5 * density[i, j] * (h_core[i, j] + fock[i, j])
-    return energy
+def calculate_density_change(density, old_density):
+    delta = 0.0
+    n = len(density)
+    for i in range(n):
+        for j in range(n):
+            delta = delta + ((density[i, j] - old_density[i, j]) ** 2)
+    delta = (delta / 4) ** 0.5
+    return delta
 
 
 # get raw data from dat files
-def get_raw_data():
-    enuc = float(np.load('../ammonia_data/enuc.npy'))
-    s = np.load('../ammonia_data/s.npy')
-    t = np.load('../ammonia_data/t.npy')
-    v = np.load('../ammonia_data/v.npy')
-    eri = np.load('../ammonia_data/eri.npy')
+def get_raw_data(data_dir):
+    enuc = float(np.load(data_dir + 'enuc.npy'))
+    s = np.load(data_dir + 's.npy')
+    t = np.load(data_dir + 't.npy')
+    v = np.load(data_dir + 'v.npy')
+    eri = np.load(data_dir + 'eri.npy')
     return enuc, s, t, v, eri
 
 
 def run_scf():
-    num_electrons = 10  # The number of electrons in our system
+    num_electrons = 2  # The number of electrons in our system
+    data_dir = "../helium_data/"
 
-    nuclear_repulsion, overlap_integrals, kinetic_energy, potential_energy, eri_data = get_raw_data()
-    # num_basis_func is the number of basis functions
-    num_basis_func = len(overlap_integrals)
-    #num_basis_func = int((np.sqrt(8 * len(overlap_integrals + 1) - 1) / 2))
+    nuclear_repulsion, overlap_integrals, kinetic_energy, potential_energy, eri_data = get_raw_data(data_dir)
+
     h_core = kinetic_energy + potential_energy
     h_core = h_core[::-1, ::-1]
 
@@ -97,32 +76,32 @@ def run_scf():
     overlap_inv_sqrt = np.dot(overlap_eigenvector,
                               np.dot(overlap_eigenvalue_inv_sqrt, np.transpose(overlap_eigenvector)))
 
-    density_matrix = np.zeros((num_basis_func, num_basis_func))  # P is density matrix, set intially to zero.
+    density = np.zeros((len(kinetic_energy), len(kinetic_energy)))  # P is density matrix, set intially to zero.
     delta = 1.0
     convergence = 1e-07
     fock_matrix = None
     i = 0
-    electronic_energy = 0.0
+    energy = nuclear_repulsion
     while delta > convergence:
-        fock_matrix = make_fock(h_core, density_matrix, num_basis_func, eri_data)
+        energy = nuclear_repulsion
+        fock_matrix = make_fock(h_core, density, eri_data)
 
-        fock_prime = f_prime(overlap_inv_sqrt, fock_matrix)
+        fock_prime = np.dot(np.transpose(overlap_inv_sqrt), np.dot(fock_matrix, overlap_inv_sqrt))
 
-        energy, coefficient_matrix = diagonalize(fock_prime, overlap_inv_sqrt)
+        _, c_prime = np.linalg.eig(fock_prime)
+        coefficients = np.dot(overlap_inv_sqrt, c_prime)
 
-        density_matrix, old_density = make_density(coefficient_matrix, density_matrix, num_basis_func, num_electrons)
+        energy = energy + 0.5 * np.sum(density * (h_core + fock_matrix))
 
-        # test for convergence. if meets criteria, exit loop and calculate properties of interest
+        density, old_density = make_density(coefficients, density, num_electrons)
 
-        # delta = calculate_density_change(density_matrix, old_density, num_basis_func)
+        density = 0.5 * density + 0.5 * old_density
+
+        delta = calculate_density_change(density, old_density)
         i += 1
-        old_electronic = electronic_energy
-        electronic_energy = get_current_energy(density_matrix, h_core, fock_matrix, num_basis_func)
-        delta = abs(electronic_energy - old_electronic)
-        print(electronic_energy + nuclear_repulsion, i)
+        print(energy, i)
 
-    electronic_energy = get_current_energy(density_matrix, h_core, fock_matrix, num_basis_func)
-    return electronic_energy + nuclear_repulsion
+    return energy
 
 
 if __name__ == "__main__":
