@@ -32,9 +32,8 @@ def make_fock(h_core, density, eri_data):
             fock[i, j] = h_core[i, j]
             for k in range(n):
                 for l in range(n):
-                    i_prime, j_prime, k_prime, l_prime = (n - 1 - a for a in [i, j, k, l])
-                    a = eri_data[i_prime, j_prime, k_prime, l_prime]
-                    b = eri_data[i_prime, k_prime, j_prime, l_prime]
+                    a = eri_data[i, j, k, l]
+                    b = eri_data[i, k, j, l]
                     f = fock[i, j]
                     p = density[k, l]
                     fock[i, j] = f + p * (a - 0.5 * b)
@@ -69,7 +68,6 @@ def run_scf():
     nuclear_repulsion, overlap_integrals, kinetic_energy, potential_energy, eri_data = get_raw_data(data_dir)
 
     h_core = kinetic_energy + potential_energy
-    h_core = h_core[::-1, ::-1]
 
     overlap_eigenvalue, overlap_eigenvector = np.linalg.eig(overlap_integrals)
     overlap_eigenvalue_inv_sqrt = (np.diag(overlap_eigenvalue ** (-0.5)))
@@ -88,7 +86,7 @@ def run_scf():
 
         fock_prime = np.dot(np.transpose(overlap_inv_sqrt), np.dot(fock_matrix, overlap_inv_sqrt))
 
-        _, c_prime = np.linalg.eig(fock_prime)
+        _, c_prime = np.linalg.eigh(fock_prime)
         coefficients = np.dot(overlap_inv_sqrt, c_prime)
 
         energy = energy + 0.5 * np.sum(density * (h_core + fock_matrix))

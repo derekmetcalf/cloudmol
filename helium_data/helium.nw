@@ -6,12 +6,12 @@ scratch_dir ./scratch
 
 charge 1
 geometry units angstroms noautosym
- He 0 0 0
- H 0.9295 0 0 
+He 0 0 0
+H 0.9295 0 0 
 end
 
 basis
- * library sto-3g
+ * library 6-31G
 end
 
 scf
