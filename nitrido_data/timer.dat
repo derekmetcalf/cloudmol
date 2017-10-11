@@ -72,3 +72,77 @@ HF: Form C  :       0.02u       0.00s   0.015062w     34 calls
 HF: Form D  :       0.00u       0.00s   0.000361w     34 calls
 
 ***********************************************************
+
+Host: derek
+
+Timers On : Mon Sep 25 22:41:08 2017
+Timers Off: Mon Sep 25 22:41:19 2017
+
+Wall Time:       11.00 seconds
+
+JK: (A|mn)  :       0.32u       0.00s   0.320109w      5 calls
+JK: (A|Q)^-1/2:       0.15u       0.00s   0.185023w      5 calls
+JK: (Q|mn)  :       0.05u       0.00s   0.057471w      5 calls
+HF: Form H  :       0.01u       0.00s 0.00037400w      1 call
+HF: Form S/X:       0.00u       0.00s 0.00050300w      1 call
+HF: Guess   :       0.08u       0.00s 0.08531000w      1 call
+SAD Guess   :       0.08u       0.00s 0.08384800w      1 call
+JK: D       :       0.00u       0.00s   0.000445w     59 calls
+JK: USO2AO  :       0.00u       0.00s   0.000146w     59 calls
+JK: JK      :       0.85u       0.01s   0.847416w     59 calls
+JK: J       :       0.04u       0.00s   0.043745w     59 calls
+JK: J1      :       0.02u       0.00s   0.022198w     84 calls
+JK: J2      :       0.02u       0.00s   0.021020w     84 calls
+JK: K       :       0.79u       0.01s   0.787842w     59 calls
+JK: K1      :       0.60u       0.01s   0.612799w     82 calls
+JK: K2      :       0.19u       0.00s   0.174784w     82 calls
+JK: AO2USO  :       0.00u       0.00s   0.000027w     59 calls
+DIISManager::add_entry:       0.00u       0.00s   0.001900w     58 calls
+DIISManager::extrapolate:       0.01u       0.00s   0.005969w     57 calls
+DIISManager::extrapolate: bMatrix setup:       0.00u       0.00s   0.002191w     57 calls
+DIISManager::extrapolate: bMatrix pseudoinverse:       0.01u       0.00s   0.001247w     57 calls
+DIISManager::extrapolate: form new data:       0.00u       0.00s   0.002388w     57 calls
+HF: Form G  :       0.84u       0.01s   0.844863w     34 calls
+HF: Form F  :       0.00u       0.00s   0.000307w     34 calls
+HF: DIIS    :       0.00u       0.00s   0.010715w     34 calls
+HF: Form C  :       0.02u       0.00s   0.014900w     34 calls
+HF: Form D  :       0.00u       0.00s   0.000331w     34 calls
+
+***********************************************************
+
+Host: derek
+
+Timers On : Tue Sep 26 15:06:04 2017
+Timers Off: Tue Sep 26 15:06:15 2017
+
+Wall Time:       11.00 seconds
+
+JK: (A|mn)  :       0.31u       0.00s   0.318489w      5 calls
+JK: (A|Q)^-1/2:       0.17u       0.01s   0.179055w      5 calls
+JK: (Q|mn)  :       0.05u       0.00s   0.057581w      5 calls
+HF: Form H  :       0.00u       0.00s 0.00104600w      1 call
+HF: Form S/X:       0.00u       0.00s 0.00049900w      1 call
+HF: Guess   :       0.09u       0.00s 0.08520000w      1 call
+SAD Guess   :       0.09u       0.00s 0.08372600w      1 call
+JK: D       :       0.00u       0.00s   0.000428w     59 calls
+JK: USO2AO  :       0.00u       0.00s   0.000151w     59 calls
+JK: JK      :       0.82u       0.01s   0.844155w     59 calls
+JK: J       :       0.03u       0.01s   0.043382w     59 calls
+JK: J1      :       0.02u       0.00s   0.022131w     84 calls
+JK: J2      :       0.01u       0.01s   0.020716w     84 calls
+JK: K       :       0.79u       0.00s   0.784946w     59 calls
+JK: K1      :       0.62u       0.00s   0.609655w     82 calls
+JK: K2      :       0.17u       0.00s   0.175039w     82 calls
+JK: AO2USO  :       0.00u       0.00s   0.000024w     59 calls
+DIISManager::add_entry:       0.00u       0.00s   0.001916w     58 calls
+DIISManager::extrapolate:       0.00u       0.00s   0.006154w     57 calls
+DIISManager::extrapolate: bMatrix setup:       0.00u       0.00s   0.002364w     57 calls
+DIISManager::extrapolate: bMatrix pseudoinverse:       0.00u       0.00s   0.001226w     57 calls
+DIISManager::extrapolate: form new data:       0.00u       0.00s   0.002427w     57 calls
+HF: Form G  :       0.82u       0.01s   0.841573w     34 calls
+HF: Form F  :       0.00u       0.00s   0.000300w     34 calls
+HF: DIIS    :       0.02u       0.00s   0.010872w     34 calls
+HF: Form C  :       0.01u       0.00s   0.014950w     34 calls
+HF: Form D  :       0.01u       0.00s   0.000325w     34 calls
+
+***********************************************************
