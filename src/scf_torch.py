@@ -2,11 +2,12 @@
 
 ####################################
 #
-# SELF CONSISTENT FIELD METHOD 
+# SELF CONSISTENT FIELD METHOD
 #
 ####################################
 
 import numpy as np
+import torch
 
 
 class SCF(object):
@@ -16,13 +17,14 @@ class SCF(object):
             data_dir)
         self.h_core = self.kinetic_energy + self.potential_energy
 
-        overlap_eigenvalue, overlap_eigenvector = np.linalg.eig(self.overlap_integrals)
-        self.overlap_eigenvalue_inv_sqrt = np.diag(overlap_eigenvalue ** (-0.5))
-        self.overlap_inv_sqrt = np.dot(overlap_eigenvector,
-                                       np.dot(self.overlap_eigenvalue_inv_sqrt, np.transpose(overlap_eigenvector)))
+        overlap_eigenvalue, overlap_eigenvector = torch.eig(self.overlap_integrals, eigenvectors=True)
+        overlap_eigenvalue = overlap_eigenvalue[:, 0]
+        self.overlap_eigenvalue_inv_sqrt = torch.diag(torch.rsqrt(overlap_eigenvalue))
+        self.overlap_inv_sqrt = torch.mm(overlap_eigenvector,
+                                         torch.mm(self.overlap_eigenvalue_inv_sqrt, torch.t(overlap_eigenvector)))
 
-        self.density = np.zeros(
-            (len(self.kinetic_energy), len(self.kinetic_energy)))
+        n = len(self.kinetic_energy)
+        self.density = torch.zeros((n, n)).double()
         self.delta = 1.0
         self.convergence = 1e-07
         self.fock_matrix = None
@@ -31,10 +33,10 @@ class SCF(object):
     @staticmethod
     def get_raw_data(data_dir):
         enuc = float(np.load(data_dir + 'enuc.npy'))
-        s = np.load(data_dir + 's.npy')
-        t = np.load(data_dir + 't.npy')
-        v = np.load(data_dir + 'v.npy')
-        eri = np.load(data_dir + 'eri.npy')
+        s = torch.from_numpy(np.load(data_dir + 's.npy')).double()
+        t = torch.from_numpy(np.load(data_dir + 't.npy')).double()
+        v = torch.from_numpy(np.load(data_dir + 'v.npy')).double()
+        eri = torch.from_numpy(np.load(data_dir + 'eri.npy')).double()
         return enuc, s, t, v, eri
 
     def run(self):
@@ -44,12 +46,12 @@ class SCF(object):
             energy = self.nuclear_repulsion
             self.make_fock()
 
-            fock_prime = np.dot(np.transpose(self.overlap_inv_sqrt), np.dot(self.fock_matrix, self.overlap_inv_sqrt))
+            fock_prime = torch.mm(torch.t(self.overlap_inv_sqrt), torch.mm(self.fock_matrix, self.overlap_inv_sqrt))
 
-            _, c_prime = np.linalg.eigh(fock_prime)
-            coefficients = np.dot(self.overlap_inv_sqrt, c_prime)
+            _, c_prime = torch.symeig(fock_prime, eigenvectors=True)
+            coefficients = torch.mm(self.overlap_inv_sqrt, c_prime)
 
-            energy = energy + 0.5 * np.sum(self.density * (self.h_core + self.fock_matrix))
+            energy = energy + 0.5 * torch.sum(self.density * (self.h_core + self.fock_matrix))
 
             old_density = self.make_density(coefficients)
 
@@ -64,7 +66,7 @@ class SCF(object):
     # Make Fock Matrix
     def make_fock(self):
         n = len(self.h_core)
-        fock = np.zeros((n, n))
+        fock = torch.zeros((n, n)).double()
         for i in range(n):
             for j in range(n):
                 fock[i, j] = self.h_core[i, j]
@@ -81,7 +83,7 @@ class SCF(object):
     # and return old one to test for convergence
     def make_density(self, coefficients):
         n = len(self.density)
-        old_density = np.zeros((n, n))
+        old_density = torch.zeros((n, n)).double()
         for mu in range(n):
             for nu in range(n):
                 old_density[mu, nu] = self.density[mu, nu]
