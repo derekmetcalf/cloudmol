@@ -8,6 +8,7 @@
 
 import numpy as np
 import torch
+from timeit import default_timer as timer
 
 
 class SCF(object):
@@ -63,26 +64,21 @@ class SCF(object):
 
     def update_fock_matrix(self):
         n = len(self.h_core)
-        for i in range(n):
-            for j in range(n):
-                self.fock_matrix[i, j] = self.h_core[i, j]
-                for k in range(n):
-                    for l in range(n):
-                        a = self.eri_data[i, j, k, l]
-                        b = self.eri_data[i, k, j, l]
-                        f = self.fock_matrix[i, j]
-                        p = self.density[k, l]
-                        self.fock_matrix[i, j] = f + p * (a - 0.5 * b)
+        p = self.density.expand_as(self.eri_data)
+        a = self.eri_data
+        b = torch.transpose(self.eri_data, 1, 2)
+        f = p * (a - 0.5 * b)
+        f = f.view(n, n, n ** 2)
+        self.fock_matrix = self.h_core + torch.sum(f, 2)
 
     # update density
     # return old density to test for convergence
     def update_density(self, coefficients):
         n = len(self.density)
-        old_density = torch.zeros((n, n)).double()
+        old_density = self.density.clone()
+        self.density.zero_()
         for mu in range(n):
             for nu in range(n):
-                old_density[mu, nu] = self.density[mu, nu]
-                self.density[mu, nu] = 0.0e0
                 for m in range(self.num_electrons // 2):
                     self.density[mu, nu] = self.density[mu, nu] + (2 * coefficients[mu, m] * coefficients[nu, m])
         return old_density
@@ -96,5 +92,8 @@ class SCF(object):
 
 if __name__ == "__main__":
     scf = SCF(num_electrons=2, data_dir="../data/helium/")
+    start = timer()
     total_energy = scf.run()
+    end = timer()
     print("Total Energy: {}".format(total_energy))
+    print("Execution Time: {:.4f} sec".format(end - start))

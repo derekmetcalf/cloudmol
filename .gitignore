@@ -12,3 +12,4 @@ pyvenv.cfg
 pip-selfcheck.json
 .idea/
 nitrido_data/eri.npy
+.vscode/
