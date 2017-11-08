@@ -75,12 +75,11 @@ class SCF(object):
     # return old density to test for convergence
     def update_density(self, coefficients):
         n = len(self.density)
+        num_orbitals = self.num_electrons // 2
         old_density = self.density.clone()
-        self.density.zero_()
-        for mu in range(n):
-            for nu in range(n):
-                for m in range(self.num_electrons // 2):
-                    self.density[mu, nu] = self.density[mu, nu] + (2 * coefficients[mu, m] * coefficients[nu, m])
+        c = coefficients[:, :num_orbitals]
+        self.density =  2 * torch.mm(c, c.t())
+
         return old_density
 
     # Calculate change in density matrix
@@ -96,4 +95,4 @@ if __name__ == "__main__":
     total_energy = scf.run()
     end = timer()
     print("Total Energy: {}".format(total_energy))
-    print("Execution Time: {:.4f} sec".format(end - start))
+    print("Execution Time: {:.4f} sec".format(end - start)) 
