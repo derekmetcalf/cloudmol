@@ -21,8 +21,7 @@ class SCF(object):
         overlap_eigenvalues, overlap_eigenvectors = torch.eig(self.overlap_integrals, eigenvectors=True)
         overlap_eigenvalues = overlap_eigenvalues[:, 0]
         overlap_eigenvalue_rsqrt = torch.diag(torch.rsqrt(overlap_eigenvalues))
-        self.overlap_rsqrt = torch.mm(overlap_eigenvectors,
-                                      torch.mm(overlap_eigenvalue_rsqrt, torch.t(overlap_eigenvectors)))
+        self.overlap_rsqrt = overlap_eigenvectors @ (overlap_eigenvalue_rsqrt @ overlap_eigenvectors.t())
 
         n = len(self.kinetic_energy)
         self.density = torch.zeros((n, n)).double()
@@ -45,12 +44,13 @@ class SCF(object):
         i = 0
         energy = self.nuclear_repulsion
         while self.delta > self.convergence:
+            start_loop = timer()
             energy = self.nuclear_repulsion
             self.update_fock_matrix()
 
-            fock_prime = torch.mm(torch.t(self.overlap_rsqrt), torch.mm(self.fock_matrix, self.overlap_rsqrt))
+            fock_prime = self.overlap_rsqrt.t() @ (self.fock_matrix @ self.overlap_rsqrt)
             _, c_prime = torch.symeig(fock_prime, eigenvectors=True)
-            coefficients = torch.mm(self.overlap_rsqrt, c_prime)
+            coefficients = self.overlap_rsqrt @ c_prime
             energy = energy + 0.5 * torch.sum(self.density * (self.h_core + self.fock_matrix))
 
             old_density = self.update_density(coefficients)
@@ -58,7 +58,10 @@ class SCF(object):
             self.delta = self.get_density_change(old_density)
 
             i += 1
-            print(energy, i)
+            end_loop = timer()
+            elapsed = end_loop - start_loop
+            print("energy: {}, i: {}, iteration time: {:.4f} sec".format(energy, i, elapsed))
+            
 
         return energy
 
@@ -78,13 +81,12 @@ class SCF(object):
         num_orbitals = self.num_electrons // 2
         old_density = self.density.clone()
         c = coefficients[:, :num_orbitals]
-        self.density =  2 * torch.mm(c, c.t())
-
+        self.density =  2 * c @ c.t()
         return old_density
 
     # Calculate change in density matrix
     def get_density_change(self, old_density):
-        delta = torch.sum(((self.density - old_density) ** 2))
+        delta = torch.sum((self.density - old_density) ** 2)
         delta = (delta / 4) ** 0.5
         return delta
 
