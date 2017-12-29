@@ -10,6 +10,8 @@ import numpy as np
 import torch
 from timeit import default_timer as timer
 
+torch.set_num_threads(4)
+
 
 class SCF(object):
     def __init__(self, num_electrons, data_dir):
@@ -61,7 +63,6 @@ class SCF(object):
             end_loop = timer()
             elapsed = end_loop - start_loop
             print("energy: {}, i: {}, iteration time: {:.4f} sec".format(energy, i, elapsed))
-            
 
         return energy
 
@@ -81,7 +82,7 @@ class SCF(object):
         num_orbitals = self.num_electrons // 2
         old_density = self.density.clone()
         c = coefficients[:, :num_orbitals]
-        self.density =  2 * c @ c.t()
+        self.density = 2 * c @ c.t()
         return old_density
 
     # Calculate change in density matrix
@@ -97,4 +98,4 @@ if __name__ == "__main__":
     total_energy = scf.run()
     end = timer()
     print("Total Energy: {}".format(total_energy))
-    print("Execution Time: {:.4f} sec".format(end - start)) 
+    print("Execution Time: {:.4f} sec".format(end - start))
