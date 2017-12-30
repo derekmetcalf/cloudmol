@@ -20,8 +20,11 @@ Context = namedtuple('Context',
                       'eri_data',
                       'h_core',
                       'overlap_rsqrt',
+                      'overlap_rsqrt_t',
                       'convergence',
-                      'damping_factor'])
+                      'damping_factor',
+                      'fock_coefficient']
+                     )
 
 
 def get_len(t):
@@ -47,6 +50,11 @@ def create_context(num_electrons, data_dir):
     overlap_eigenvalues, overlap_eigenvectors = tf.self_adjoint_eig(overlap_integrals)
     overlap_eigenvalue_rsqrt = tf.diag(tf.rsqrt(overlap_eigenvalues))
     overlap_rsqrt = overlap_eigenvectors @ (overlap_eigenvalue_rsqrt @ tf.transpose(overlap_eigenvectors))
+    overlap_rsqrt_t = tf.transpose(overlap_rsqrt)
+
+    a = eri_data
+    b = tf.transpose(eri_data, perm=[0, 2, 1, 3])
+    fock_coefficient = a - 0.5 * b
 
     convergence = tf.constant(1e-07, dtype=tf.float64)
 
@@ -60,8 +68,10 @@ def create_context(num_electrons, data_dir):
         eri_data,
         h_core,
         overlap_rsqrt,
+        overlap_rsqrt_t,
         convergence,
-        damping_factor)
+        damping_factor,
+        fock_coefficient)
     return context
 
 
@@ -80,7 +90,7 @@ def run_scf(context):
         energy = context.nuclear_repulsion
         fock_matrix = update_fock_matrix(context, density)
 
-        fock_prime = tf.transpose(context.overlap_rsqrt) @ (fock_matrix @ context.overlap_rsqrt)
+        fock_prime = context.overlap_rsqrt_t @ (fock_matrix @ context.overlap_rsqrt)
         _, c_prime = tf.self_adjoint_eig(fock_prime)
         coefficients = context.overlap_rsqrt @ c_prime
         energy = energy + 0.5 * tf.reduce_sum(density * (context.h_core + fock_matrix))
@@ -95,6 +105,7 @@ def run_scf(context):
     loop_vars = [context, init_fock_matrix, init_density, init_delta, init_energy, i]
 
     scf_loop = tf.while_loop(cond, body, loop_vars)
+
     sess = tf.Session()
     with sess.as_default():
         sess.run(tf.global_variables_initializer())
@@ -107,9 +118,7 @@ def update_fock_matrix(context, density):
     n = get_len(context.h_core)
     shape = tf.ones_like(context.eri_data)
     p = shape * density
-    a = context.eri_data
-    b = tf.transpose(context.eri_data, perm=[0, 2, 1, 3])
-    f = p * (a - 0.5 * b)
+    f = p * context.fock_coefficient
     f = tf.reshape(f, [n, n, n ** 2])
     fock_matrix = context.h_core + tf.reduce_sum(f, 2)
     return fock_matrix
