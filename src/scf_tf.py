@@ -19,8 +19,11 @@ def get_len(t):
 class SCF:
     def __init__(self, num_electrons, data_dir):
         self.num_electrons = num_electrons
-        self.nuclear_repulsion, self.overlap_integrals, self.kinetic_energy, self.potential_energy, self.eri_data = self.get_raw_data(
-            data_dir)
+        self.nuclear_repulsion, \
+        self.overlap_integrals, \
+        self.kinetic_energy, \
+        self.potential_energy, \
+        self.eri_data = self.get_raw_data(data_dir)
         self.h_core = self.kinetic_energy + self.potential_energy
 
         overlap_eigenvalues, overlap_eigenvectors = tf.self_adjoint_eig(self.overlap_integrals)
@@ -45,17 +48,16 @@ class SCF:
         return enuc, s, t, v, eri
 
     def run(self):
-        i = tf.Variable(0, dtype=tf.int32)
         n = get_len(self.kinetic_energy)
         init_energy = tf.Variable(self.nuclear_repulsion, name='energy')
         init_density = tf.Variable(tf.zeros([n, n], dtype=tf.float64, name='density'))
         init_delta = tf.Variable(1.0, dtype=tf.float64, name='delta')
         init_fock_matrix = tf.Variable(tf.zeros([n, n], dtype=tf.float64), name='fock_matrix')
 
-        def cond(fock_matrix, density, delta, energy, i):
+        def cond(fock_matrix, density, delta, energy):
             return delta > self.convergence
 
-        def body(fock_matrix, density, delta, energy, i):
+        def body(fock_matrix, density, delta, energy):
             energy = self.nuclear_repulsion
             fock_matrix = self.update_fock_matrix(density)
 
@@ -68,13 +70,11 @@ class SCF:
 
             density = self.damping_factor * density + (1 - self.damping_factor) * old_density
             delta = self.get_density_change(density, old_density)
-            i += 1
-            return [fock_matrix, density, delta, energy, i]
+            return [fock_matrix, density, delta, energy]
 
-        loop_vars = [init_fock_matrix, init_density, init_delta, init_energy, i]
+        loop_vars = [init_fock_matrix, init_density, init_delta, init_energy]
 
         scf_loop = tf.while_loop(cond, body, loop_vars)
-
         sess = tf.Session()
         with sess.as_default():
             sess.run(tf.global_variables_initializer())
