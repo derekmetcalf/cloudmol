@@ -7,7 +7,7 @@
 ####################################
 
 import numpy as np
-
+from timeit import default_timer as timer
 
 class SCF(object):
     def __init__(self, num_electrons, data_dir):
@@ -103,5 +103,8 @@ class SCF(object):
 
 if __name__ == "__main__":
     scf = SCF(num_electrons=2, data_dir="../data/helium/")
+    start = timer()
     total_energy = scf.run()
+    end = timer()
     print("Total Energy: {}".format(total_energy))
+    print("Execution Time: {:.4f} sec".format(end - start))
