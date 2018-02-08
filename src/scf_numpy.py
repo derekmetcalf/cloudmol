@@ -9,6 +9,7 @@
 import numpy as np
 from timeit import default_timer as timer
 
+
 class SCF(object):
     def __init__(self, num_electrons, data_dir):
         self.num_electrons = num_electrons
@@ -16,16 +17,21 @@ class SCF(object):
             data_dir)
         self.h_core = self.kinetic_energy + self.potential_energy
 
-        overlap_eigenvalue, overlap_eigenvector = np.linalg.eig(self.overlap_integrals)
-        self.overlap_eigenvalue_inv_sqrt = (np.diag(overlap_eigenvalue ** (-0.5)))
-        self.overlap_inv_sqrt = np.dot(overlap_eigenvector,
-                                       np.dot(self.overlap_eigenvalue_inv_sqrt, np.transpose(overlap_eigenvector)))
+        overlap_eigenvalues, overlap_eigenvectors = np.linalg.eig(self.overlap_integrals)
+        overlap_eigenvalue_rsqrt = np.diag(overlap_eigenvalues ** (-0.5))
+        self.overlap_rsqrt = overlap_eigenvectors @ (overlap_eigenvalue_rsqrt @ overlap_eigenvectors.transpose())
 
-        self.density = np.zeros(
-            (len(self.kinetic_energy), len(self.kinetic_energy)))
+        n = len(self.kinetic_energy)
+        self.density = np.zeros((n, n))
         self.delta = 1.0
+
+        self.fock_matrix = np.zeros((n, n))
+        a = self.eri_data
+        b = np.transpose(self.eri_data, (0, 2, 1, 3))
+        self.fock_coefficient = a - 0.5 * b
+
         self.convergence = 1e-07
-        self.fock_matrix = None
+        self.damping_factor = 0.5
 
     # get raw data from dat files
     @staticmethod
@@ -37,72 +43,62 @@ class SCF(object):
         eri = np.load(data_dir + 'eri.npy')
         return enuc, s, t, v, eri
 
-    def run(self):
+    def run(self, log_iterations=False):
         i = 0
         energy = self.nuclear_repulsion
         while self.delta > self.convergence:
+            if log_iterations:
+                start_loop = timer()
             energy = self.nuclear_repulsion
-            self.make_fock()
+            self.update_fock_matrix()
 
-            fock_prime = np.dot(np.transpose(self.overlap_inv_sqrt), np.dot(self.fock_matrix, self.overlap_inv_sqrt))
+            fock_prime = self.overlap_rsqrt.transpose() @ (self.fock_matrix @ self.overlap_rsqrt)
 
             _, c_prime = np.linalg.eigh(fock_prime)
-            coefficients = np.dot(self.overlap_inv_sqrt, c_prime)
+            coefficients = self.overlap_rsqrt @ c_prime
 
             energy = energy + 0.5 * np.sum(self.density * (self.h_core + self.fock_matrix))
 
-            old_density = self.make_density(coefficients)
+            old_density = self.update_density(coefficients)
 
-            self.density = 0.5 * self.density + 0.5 * old_density
+            self.density = self.damping_factor * self.density + (1 - self.damping_factor) * old_density
 
-            self.delta = self.calculate_density_change(old_density)
+            self.delta = self.get_density_change(old_density)
             i += 1
-            print(energy, i)
+            if log_iterations:
+                end_loop = timer()
+                elapsed = end_loop - start_loop
+                print("energy: {}, i: {}, iteration time: {:.4f} sec".format(energy, i, elapsed))
 
         return energy
 
     # Make Fock Matrix
-    def make_fock(self):
+    def update_fock_matrix(self):
         n = len(self.h_core)
-        fock = np.zeros((n, n))
-        for i in range(n):
-            for j in range(n):
-                fock[i, j] = self.h_core[i, j]
-                for k in range(n):
-                    for l in range(n):
-                        a = self.eri_data[i, j, k, l]
-                        b = self.eri_data[i, k, j, l]
-                        f = fock[i, j]
-                        p = self.density[k, l]
-                        fock[i, j] = f + p * (a - 0.5 * b)
-        self.fock_matrix = fock
+        p = np.broadcast_to(self.density, self.eri_data.shape)
+        f = p * self.fock_coefficient
+        f = np.reshape(f, (n, n, n ** 2))
+        self.fock_matrix = self.h_core + np.sum(f, 2)
 
     # Make Density Matrix
     # and return old one to test for convergence
-    def make_density(self, coefficients):
+    def update_density(self, coefficients):
         n = len(self.density)
-        old_density = np.zeros((n, n))
-        for mu in range(n):
-            for nu in range(n):
-                old_density[mu, nu] = self.density[mu, nu]
-                self.density[mu, nu] = 0.0e0
-                for m in range(self.num_electrons // 2):
-                    self.density[mu, nu] = self.density[mu, nu] + (2 * coefficients[mu, m] * coefficients[nu, m])
+        num_orbitals = self.num_electrons // 2
+        old_density = np.copy(self.density)
+        c = coefficients[:, :num_orbitals]
+        self.density = 2 * c @ c.transpose()
         return old_density
 
     # Calculate change in density matrix
-    def calculate_density_change(self, old_density):
-        delta = 0.0
-        n = len(self.density)
-        for i in range(n):
-            for j in range(n):
-                delta = delta + ((self.density[i, j] - old_density[i, j]) ** 2)
+    def get_density_change(self, old_density):
+        delta = np.sum((self.density - old_density) ** 2)
         delta = (delta / 4) ** 0.5
         return delta
 
 
 if __name__ == "__main__":
-    scf = SCF(num_electrons=2, data_dir="../data/helium/")
+    scf = SCF(num_electrons=58, data_dir="../data/nitrido/")
     start = timer()
     total_energy = scf.run()
     end = timer()
